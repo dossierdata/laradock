@@ -59,8 +59,34 @@ ARG INSTALL_SOAP=false
 RUN if [ ${INSTALL_SOAP} = true ]; then \
     # Install the soap extension
     rm /etc/apt/preferences.d/no-debian-php && \
-    apt-get -y install libxml2-dev php-soap && \
+    apt-get -y install libxml2-dev && \
     docker-php-ext-install soap \
+;fi
+
+###########################################################################
+# Mailparse:
+###########################################################################
+
+USER root
+
+ARG INSTALL_MAILPARSE=false
+ARG PHP_VERSION=${PHP_VERSION}
+
+RUN if [ ${INSTALL_MAILPARSE} = true ]; then \
+  # Install the PHP Mailparse extension
+  cd /tmp \
+    && apt-get install php${PHP_VERSION}-dev \
+    && pecl download mailparse \
+    && tar xvzf mailparse-3.0.2.tgz \
+    && cd mailparse-3.0.2 \
+    && phpize \
+    && ./configure \
+    && sed -i \
+      's/^\(#error .* the mbstring extension!\)/\/\/\1/' \
+      mailparse.c \
+    && make \
+    && make install \
+    && echo 'extension=mailparse.so' > /etc/php/${PHP_VERSION}/cli/php.ini \
 ;fi
 
 ###########################################################################

@@ -181,23 +181,38 @@ RUN if [ ${INSTALL_DRUSH} = true ]; then \
 USER root
 
 ARG INSTALL_SOAP=false
+ARG PHP_VERSION=${PHP_VERSION}
 
 RUN if [ ${INSTALL_SOAP} = true ]; then \
   # Install the PHP SOAP extension
-  apt-get -y install libxml2-dev php${LARADOCK_PHP_VERSION}-soap \
+  apt-get -y install libxml2-dev php${PHP_VERSION}-soap \
 ;fi
 
 ###########################################################################
-# LDAP:
+# Mailparse:
 ###########################################################################
 
-ARG INSTALL_LDAP=false
+USER root
 
-RUN if [ ${INSTALL_LDAP} = true ]; then \
-    apt-get install -y libldap2-dev && \
-    apt-get install -y php${LARADOCK_PHP_VERSION}-ldap \
+ARG INSTALL_MAILPARSE=false
+ARG PHP_VERSION=${PHP_VERSION}
+
+RUN if [ ${INSTALL_MAILPARSE} = true ]; then \
+  # Install the PHP Mailparse extension
+  cd /tmp \
+    && apt-get install php${PHP_VERSION}-dev \
+    && pecl download mailparse \
+    && tar xvzf mailparse-3.0.2.tgz \
+    && cd mailparse-3.0.2 \
+    && phpize \
+    && ./configure \
+    && sed -i \
+      's/^\(#error .* the mbstring extension!\)/\/\/\1/' \
+      mailparse.c \
+    && make \
+    && make install \
+    && echo 'extension=mailparse.so' > /etc/php/${PHP_VERSION}/cli/php.ini \
 ;fi
-
 ###########################################################################
 # IMAP:
 ###########################################################################
