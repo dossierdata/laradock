@@ -104,6 +104,18 @@ RUN if [ ${INSTALL_PGSQL} = true ]; then \
 ;fi
 
 ###########################################################################
+# mailparse
+###########################################################################
+
+ARG INSTALL_MAILPARSE=true
+
+RUN if [ ${INSTALL_MAILPARSE} = true ]; then \
+    # Install the mailparse extension
+    pecl install mailparse \
+    echo "extension=mailparse.so" > $PHP_INI_DIR/conf.d/docker-php-ext-mailparse.ini \
+;fi
+
+###########################################################################
 # pgsql client
 ###########################################################################
 

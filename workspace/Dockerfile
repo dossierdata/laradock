@@ -202,6 +202,17 @@ RUN if [ ${INSTALL_GMP} = true ]; then \
 ;fi
 
 ###########################################################################
+# bcmath:
+###########################################################################
+
+ARG INSTALL_BCMATH=false
+
+RUN if [ ${INSTALL_BCMATH} = true ]; then \
+    # Install the bcmath extension
+    apt-get -y install php${PHP_VERSION}-bcmath \
+;fi
+
+###########################################################################
 # SOAP:
 ###########################################################################
 
@@ -212,6 +223,28 @@ ARG INSTALL_SOAP=false
 RUN if [ ${INSTALL_SOAP} = true ]; then \
   # Install the PHP SOAP extension
   apt-get -y install libxml2-dev php${LARADOCK_PHP_VERSION}-soap \
+;fi
+
+###########################################################################
+# mailparse
+###########################################################################
+
+ARG INSTALL_MAILPARSE=true
+
+RUN if [ ${INSTALL_MAILPARSE} = true ]; then \
+    # Install the mailparse extension
+    cd /tmp && \
+    apt-get update -y && \
+    apt-get install php${LARADOCK_PHP_VERSION}-dev && \
+    pecl download mailparse && \
+    tar xvzf mailparse-3.0.2.tgz && \
+    cd mailparse-3.0.2 && \
+    phpize && \
+    ./configure && \
+    sed -i 's/^\(#error .* the mbstring extension!\)/\/\/\1/' mailparse.c && \
+    make && \
+    make install && \
+    echo "extension=mailparse.so" > /etc/php/${LARADOCK_PHP_VERSION}/cli/conf.d/20-mailparse.ini \
 ;fi
 
 ###########################################################################

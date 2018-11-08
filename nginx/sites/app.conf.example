@@ -3,8 +3,8 @@ server {
     listen 80;
     listen [::]:80;
 
-    server_name app.test;
-    root /var/www/app;
+    server_name *.ddat.localhost ddat.localhost dossierdata.ddat.localhost;
+    root /var/www/dossierdata/public;
     index index.php index.html index.htm;
 
     location / {
